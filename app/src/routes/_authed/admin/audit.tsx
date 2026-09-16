@@ -87,17 +87,29 @@ function AuditPage() {
         <div className="flex flex-wrap gap-2">
           {FILTERS.map((filter) => (
             <Button
+              aria-pressed={search === filter.search}
               key={filter.label}
               onClick={() => setSearch(filter.search)}
               size="sm"
               type="button"
-              /* The fill is the state, as on every other set of switches in the app. */
+              /* The fill is the state for the eye, as on every other set of switches in the app;
+                 aria-pressed carries the same fact to assistive tech — the one screen that is
+                 effectively a tab set must not encode selection by fill alone. */
               variant={search === filter.search ? "default" : "outline"}
             >
               {filter.label}
             </Button>
           ))}
         </div>
+
+        {/*
+         * The count is the only live region on this page: mounted empty while pending, filled
+         * when data arrives, so a screen reader hears the table land (and re-hears it after a
+         * manual Refresh) without any row, cell, or the table itself being live.
+         */}
+        <p className="sr-only" role="status">
+          {events.isPending ? "" : `${rows.length} events shown.`}
+        </p>
 
         {events.isPending ? null : events.isError ? (
           <p className="mt-4 text-destructive text-sm" role="alert">
